@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres
+    container_name: game_exchange_db
+    environment:
+      - POSTGRES_PASSWORD=z1x2c3112233
+      - POSTGRES_DB=game_postgres
+      - POSTGRES_USER=db_service
+    ports:
+      - '7007:5432'
+
+  push_notification:
+    image: centrifugo/centrifugo
+    ports:
+      - '3009:${CENTRIFUGO_PORT}'
+    command: centrifugo --config=/etc/centrifugo/config.json
+
+    volumes:
+      - ./volumes/centrifugo:/etc/centrifugo
+
+    # networks:
+    #   - centrifugo_network
+    env_file:
+      - .env
+
+  qr_code_server:
+    container_name: game_exchange_qr_code_server
+    image: samwierema/go-qr-generator
+    environment:
+      - PORT=8080
+    ports:
+      - 7777:8080
+
+  cache:
+    image: redis
+    container_name: game_exchange_cache
+    ports:
+      - 6379:6379
+  # mailserver:
+  #   image: ghcr.io/docker-mailserver/docker-mailserver:latest
+  #   container_name: mailserver
+  #   # Provide the FQDN of your mail server here (Your DNS MX record should point to this value)
+  #   hostname: mail.example.com
+  #   ports:
+  #     - "25:25"
+  #     - "587:587"
+  #     - "465:465"
+  #   volumes:
+  #     - ./docker-data/dms/mail-data/:/var/mail/
+  #     - ./docker-data/dms/mail-state/:/var/mail-state/
+  #     - ./docker-data/dms/mail-logs/:/var/log/mail/
+  #     - ./docker-data/dms/config/:/tmp/docker-mailserver/
+  #     - /etc/localtime:/etc/localtime:ro
+  #   environment:
+  #     - ENABLE_FAIL2BAN=1
+  #     # Using letsencrypt for SSL/TLS certificates:
+  #     - SSL_TYPE=letsencrypt
+  #     # Allow sending emails from other docker containers:
+  #     # Beware creating an Open Relay: https://docker-mailserver.github.io/docker-mailserver/latest/config/environment/#permit_docker
+  #     - PERMIT_DOCKER=network
+  #     # You may want to enable this: https://docker-mailserver.github.io/docker-mailserver/latest/config/environment/#spoof_protection
+  #     # See step 6 below, which demonstrates setup with enabled/disabled SPOOF_PROTECTION:
+  #     - SPOOF_PROTECTION=0
+  #   cap_add:
+  #     - NET_ADMIN # For Fail2Ban to work
+  #   restart: always
+  # customer-logic:
+  #   image: bitnami/keycloak
+  #   depends_on:
+  #     - db
+
+  # api-logic:
+  #   image: bitnami/keycloak
+  #   depends_on:
+  #     - db
+
+  # agent-logic:
+  #   image: bitnami/keycloak
+  #   depends_on:
+  #     - db
+
+  # admin-logic:
+  #   image: bitnami/keycloak
+  #   depends_on:
+  #     - db
+# networks:
+#   centrifugo_network:
+#     driver: bridge

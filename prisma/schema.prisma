@@ -1,0 +1,804 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex", "relationJoins"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String       @id() @default(uuid())
+  first_name    String?
+  last_name     String?
+  email         String       @unique
+  password      String
+  profile       UserProfile? @relation(fields: [userProfileId], references: [id])
+  userProfileId String?      @unique
+  contact       ContactItem? @relation(fields: [contactItemId], references: [id])
+  contactItemId String?
+  role          UserRole     @default(CUSTOMER)
+  location      Json?        @default("{}")
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt()
+}
+
+model UserProfile {
+  id                String              @id() @default(uuid())
+  profilePhoto      String
+  displayName       String
+  handle            UserHandle          @relation(fields: [userHandleId], references: [id])
+  userHandleId      String
+  about             UserAbout           @relation(fields: [userAboutId], references: [id])
+  userContactsId    String?             @unique
+  swaps             UserGameSwap[]
+  offers            UserGameOffer[]
+  Inventory         UserInventory?      @relation(fields: [userInventoryId], references: [id])
+  userInventoryId   String?             @unique
+  UserInbox         UserInbox?          @relation(fields: [userInboxId], references: [id])
+  userInboxId       String              @unique
+  UserFeed          UserFeed[]
+  UserSquare        UserSquare?         @relation(fields: [squareId], references: [id])
+  squareId          String?             @unique
+  SentMessages      UserMessage[]
+  UserSales         UserSale[]
+  Buyers            GameBuyer[]
+  UserContacts      UserContacts?
+  SaleQrCodes       UserSaleQrCode[]
+  UserBookmark      UserBookmark?       @relation(fields: [userBookmarkId], references: [id])
+  userBookmarkId    String?             @unique
+  mentions          UserMention?
+  notifications     UserNotification[]
+  Followers         UserFollower[]
+  User              User[]
+  AcceptedOffer     AcceptedOffer[]
+  CounterOffer      CounterOffer[]
+  UserWallet        UserWallet[]
+  ReportCount       Int
+  UserVirtualCard   UserVirtualCard[]
+  UserPaymentMethod UserPaymentMethod[]
+  UserCart          UserCart?
+  AdminLoginLog     AdminLoginLog[]
+  UserPermissions   UserPermissions[]
+  UserMentioned     UserMentioned[]
+  userAboutId       String
+  pickups           Pickup[]
+  referrals         Referral[]
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt()
+  UserSquareMod     UserSquareMod?      @relation(fields: [UsersquareModId], references: [id])
+  UsersquareModId   String?
+}
+
+model UserSquare {
+  id               String         @id() @default(uuid())
+  photoPath        String
+  Name             String
+  About            String
+  mods             UserSquareMod  @relation(fields: [UsersquareModId], references: [id])
+  UsersquareModId  String
+  members          UserProfile[]
+  thread           GameSwapThread @relation(fields: [gameSwapThreadId], references: [id])
+  gameSwapThreadId String         @unique
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt()
+}
+
+model UserSquareMod {
+  id         String        @id() @default(uuid())
+  moderators UserProfile[]
+  UserSquare UserSquare[]
+}
+
+model UserGame {
+  id              String          @id() @default(uuid())
+  Title           String
+  photoPath       String
+  console         Console         @relation(fields: [consoleId], references: [id])
+  consoleId       String
+  genre           Genre           @relation(fields: [genreId], references: [id])
+  genreId         String
+  UserGameOffer   UserGameOffer[]
+  UserSale        UserSale[]
+  UserInventory   UserInventory?  @relation(fields: [userInventoryId], references: [id])
+  userInventoryId String?
+  CounterOffer    CounterOffer[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt()
+}
+
+model UserSale {
+  id             String          @id() @default(uuid())
+  profile        UserProfile     @relation(fields: [userProfileId], references: [id])
+  userProfileId  String          @unique
+  buyer          GameBuyer       @relation(fields: [buyerId], references: [id])
+  buyerId        String          @unique
+  buyerdata      Json
+  UserFeed       UserFeed?       @relation(fields: [userFeedId], references: [id])
+  userFeedId     String?
+  Game           UserGame        @relation(fields: [GameId], references: [id])
+  GameId         String
+  UserSaleQrCode UserSaleQrCode?
+  Bookmarkable   Bookmarkable[]
+  SalesCharge    SalesCharge     @relation(fields: [salesChargeId], references: [id])
+  salesChargeId  String          @unique
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt()
+  UserCart       UserCart?       @relation(fields: [userCartId], references: [id])
+  userCartId     String?
+  Order          Order[]
+}
+
+model GameBuyer {
+  id            String      @id() @default(uuid())
+  user          UserProfile @relation(fields: [userProfileId], references: [id])
+  userProfileId String      @unique
+  UserSale      UserSale[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt()
+}
+
+model UserContacts {
+  id            String        @id() @default(uuid())
+  contacts      ContactItem[]
+  UserProfile   UserProfile   @relation(fields: [userProfileId], references: [id])
+  userProfileId String        @unique
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt()
+}
+
+model ContactItem {
+  id             String        @id() @default(uuid())
+  Name           String
+  photoPath      String
+  UserContacts   UserContacts? @relation(fields: [userContactsId], references: [id])
+  userContactsId String?
+  User           User[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt()
+}
+
+model UserGameOffer {
+  id               String            @id() @default(uuid())
+  Window           DateTime
+  Title            String
+  UserOfferQrCodes UserOfferQrCode[]
+  UserFeed         UserFeed[]
+  UserProfile      UserProfile?      @relation(fields: [userProfileId], references: [id])
+  userProfileId    String?           @unique
+  game             UserGame          @relation(fields: [userGameId], references: [id])
+  userGameId       String
+  UserGameSwap     UserGameSwap[]
+  Bookmarkable     Bookmarkable[]
+  Thread           GameSwapThread?   @relation(fields: [userThreadId], references: [id])
+  userThreadId     String?
+  AcceptedOffer    AcceptedOffer     @relation(fields: [acceptedOfferId], references: [id])
+  acceptedOfferId  String            @unique
+  counteroffer     CounterOffer[]
+  Status           OfferStatus       @default(Pending)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt()
+}
+
+model UserOfferQrCode {
+  id          String        @id() @default(uuid())
+  offer       UserGameOffer @relation(fields: [userOfferId], references: [id])
+  userOfferId String        @unique
+  image       String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt()
+}
+
+model UserSaleQrCode {
+  id            String      @id() @default(uuid())
+  user          UserProfile @relation(fields: [userProfileId], references: [id])
+  userProfileId String
+  sale          UserSale?   @relation(fields: [userSaleId], references: [id])
+  userSaleId    String      @unique
+  image         String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt()
+}
+
+model UserGameSwap {
+  id            String        @id() @default(uuid())
+  UserProfile   UserProfile?  @relation(fields: [userProfileId], references: [id])
+  userProfileId String?
+  offer         UserGameOffer @relation(fields: [userOfferId], references: [id])
+  userOfferId   String
+  // thread           GameSwapThread? @relation(fields: [gameSwapThreadId], references: [id])
+  // gameSwapThreadId String
+  Location      Json
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt()
+  UserDispute   UserDispute[]
+  Order         Order[]
+}
+
+model UserMessage {
+  id          String           @id() @default(uuid())
+  content     String
+  replies     UserReply[]
+  sender      UserProfile      @relation(fields: [senderId], references: [id])
+  senderId    String           @unique
+  recipient   MessageRecipient @relation(fields: [RecipientId], references: [id])
+  UserChat    UserChat         @relation(fields: [userChatId], references: [id])
+  userChatId  String           @unique
+  RecipientId String           @unique
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt()
+}
+
+model MessageRecipient {
+  id          String        @id() @default(uuid())
+  inbox       UserInbox     @relation(fields: [userInboxId], references: [id])
+  userInboxId String        @unique
+  UserMessage UserMessage[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt()
+}
+
+model UserReply {
+  id          String       @id() @default(uuid())
+  UserMessage UserMessage? @relation(fields: [messageId], references: [id])
+  messageId   String
+  content     String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt()
+}
+
+model UserInbox {
+  id               String             @id() @default(uuid())
+  userProfileId    String?            @unique
+  MessageRecipient MessageRecipient[]
+  UserProfile      UserProfile?
+  chat             UserChat[]
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt()
+}
+
+model UserFeed {
+  id            String          @id() @default(uuid())
+  offers        UserGameOffer[]
+  sales         UserSale[]
+  UserProfile   UserProfile[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt()
+}
+
+model UserBookmark {
+  id          String         @id() @default(uuid())
+  items       Bookmarkable[]
+  UserProfile UserProfile?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt()
+}
+
+model Bookmarkable {
+  id              String          @id() @default(uuid())
+  UserBookmark    UserBookmark    @relation(fields: [userBookmarkId], references: [id])
+  userBookmarkId  String
+  sale            UserSale?       @relation(fields: [userSaleId], references: [id])
+  userSaleId      String?
+  offer           UserGameOffer?  @relation(fields: [userOfferId], references: [id])
+  userOfferId     String?
+  comment         UserComment?    @relation(fields: [userCommentId], references: [id])
+  userCommentId   String?
+  mention         UserMention?    @relation(fields: [userMentionsId], references: [id])
+  userMentionsId  String?
+  thread          GameSwapThread? @relation(fields: [userThreadId], references: [id])
+  userThreadId    String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt()
+  UserMentioned   UserMentioned?  @relation(fields: [userMentionedId], references: [id])
+  userMentionedId String?
+}
+
+model UserChat {
+  id          String        @id() @default(uuid())
+  messages    UserMessage[]
+  UserInbox   UserInbox     @relation(fields: [userInboxId], references: [id])
+  userInboxId String        @unique
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt()
+}
+
+model UserMention {
+  id              String         @id() @default(uuid())
+  UserProfile     UserProfile    @relation(fields: [userProfileId], references: [id])
+  userProfileId   String         @unique
+  Bookmarkable    Bookmarkable[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt()
+  UserMentioned   UserMentioned? @relation(fields: [userMentionedId], references: [id])
+  userMentionedId String?
+}
+
+model UserMentioned {
+  id            String         @id() @default(uuid())
+  UserProfile   UserProfile?   @relation(fields: [userProfileId], references: [id])
+  userProfileId String?
+  mentions      UserMention[]
+  Bookmarkable  Bookmarkable[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt()
+}
+
+model UserNotification {
+  id            String       @id() @default(uuid())
+  UserProfile   UserProfile? @relation(fields: [userProfileId], references: [id])
+  userProfileId String?
+  message       Json
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt()
+}
+
+model SalesCharge {
+  id            String     @id() @default(uuid())
+  percentCharge Float
+  fixedCharge   Float
+  TotalCharge   Float
+  UserSale      UserSale[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt()
+}
+
+model UserComment {
+  id           String         @id() @default(uuid())
+  Thread       GameSwapThread @relation(fields: [ThreadId], references: [id])
+  ThreadId     String
+  Bookmarkable Bookmarkable[]
+  comment      String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt()
+}
+
+model GameSwapThread {
+  id            String          @id() @default(uuid())
+  comments      UserComment[]
+  UserGameOffer UserGameOffer[]
+  Bookmarkable  Bookmarkable[]
+  UserSquare    UserSquare[]
+  // UserGameSwap  UserGameSwap[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt()
+}
+
+model UserFollower {
+  id            String      @id() @default(uuid())
+  UserProfile   UserProfile @relation(fields: [userProfileId], references: [id])
+  userProfileId String      @unique
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt()
+}
+
+model UserInventory {
+  id          String        @id() @default(uuid())
+  games       UserGame[]
+  UserProfile UserProfile[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt()
+}
+
+model AcceptedOffer {
+  id            String         @id() @default(uuid())
+  Offer         CounterOffer   @relation(fields: [OfferId], references: [id])
+  OfferId       String         @unique
+  Acceptee      UserProfile    @relation(fields: [AccepteeId], references: [id])
+  AccepteeId    String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt()
+  UserGameOffer UserGameOffer?
+}
+
+model CounterOffer {
+  id            String         @id() @default(uuid())
+  Game          UserGame       @relation(fields: [GameId], references: [id])
+  GameId        String
+  profile       UserProfile    @relation(fields: [profileId], references: [id])
+  profileId     String
+  Offer         UserGameOffer  @relation(fields: [OfferId], references: [id])
+  OfferId       String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt()
+  AcceptedOffer AcceptedOffer?
+}
+
+model Currency {
+  id             String           @id() @default(uuid())
+  Currencycode   String
+  UserWallet     UserWallet[]
+  BoardmanWallet BoardmanWallet[]
+}
+
+model UserWallet {
+  id            String      @id() @default(uuid())
+  user          UserProfile @relation(fields: [userProfileId], references: [id])
+  userProfileId String
+  currency      Currency    @relation(fields: [currencyId], references: [id])
+  currencyId    String
+  balance       Float       @default(0.0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt()
+}
+
+model BoardmanWallet {
+  id            String   @id() @default(uuid())
+  user          Boardman @relation(fields: [userProfileId], references: [id])
+  userProfileId String
+  currency      Currency @relation(fields: [currencyId], references: [id])
+  currencyId    String
+  balance       Float    @default(0.0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt()
+}
+
+enum UserRole {
+  CUSTOMER
+  ADMIN
+  AGENT
+  API
+}
+
+enum OfferStatus {
+  Accepted
+  Rejected
+  Pending
+}
+
+model Console {
+  id          String       @id() @default(uuid())
+  consoleName String
+  maker       Manufacturer
+  UserGame    UserGame[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt()
+  Admin       Admin?       @relation(fields: [adminId], references: [id])
+  adminId     String?
+}
+
+model UserVirtualCard {
+  id            String      @id() @default(uuid())
+  details       Json        @default("{}")
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt()
+  profile       UserProfile @relation(fields: [userProfileId], references: [id])
+  userProfileId String
+}
+
+model UserPaymentMethod {
+  id            String      @id() @default(uuid())
+  profile       UserProfile @relation(fields: [userProfileId], references: [id])
+  userProfileId String
+  details       Json        @default("{}")
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt()
+}
+
+model UserCart {
+  id            String      @id() @default(uuid())
+  profile       UserProfile @relation(fields: [userProfileId], references: [id])
+  userProfileId String      @unique
+  items         UserSale[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt()
+}
+
+model Genre {
+  id        String     @id() @default(uuid())
+  name      String
+  UserGame  UserGame[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt()
+  Admin     Admin?     @relation(fields: [adminId], references: [id])
+  adminId   String?
+}
+
+enum Manufacturer {
+  SONY
+  MICROSOFT
+  NINTENDO
+  SEGA
+}
+
+enum SwapStatus {
+  SWAPPED
+  PENDING
+  DISPUTED
+}
+
+model UserDispute {
+  id             String        @id() @default(uuid())
+  Reason         DisputeReason
+  SwapInQuestion UserGameSwap  @relation(fields: [userGameSwapId], references: [id])
+  userGameSwapId String
+  swapDetails    Json
+  Details        String        @db.Text
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt()
+}
+
+enum DisputeReason {
+  NO_SHOW
+  FAULTY_DISC
+}
+
+model UserPermissions {
+  id              String            @id() @default(uuid())
+  role            UserRole          @default(CUSTOMER)
+  user            UserProfile       @relation(fields: [userProfileId], references: [id])
+  userProfileId   String
+  Swap            PermissionState[]
+  Dispute         PermissionState[]
+  Game            PermissionState[]
+  Message         PermissionState[]
+  Reply           PermissionState[]
+  Comment         PermissionState[]
+  Inventory       PermissionState[]
+  Offer           PermissionState[]
+  CounterOffer    PermissionState[]
+  AcceptOffer     PermissionState[]
+  Square          PermissionState[]
+  SellGame        PermissionState[]
+  Wallet          PermissionState[]
+  Currency        PermissionState[]
+  Bookmark        PermissionState[]
+  BookmarkItem    PermissionState[]
+  BuyGame         PermissionState[]
+  Contacts        PermissionState[]
+  ReceiveMessage  PermissionState[]
+  Chat            PermissionState[]
+  Notification    PermissionState[]
+  Thread          PermissionState[]
+  Genre           PermissionState[]
+  Console         PermissionState[]
+  Mention         PermissionState[]
+  QrSale          PermissionState[]
+  QrOffer         PermissionState[]
+  ContactItem     PermissionState[]
+  SwapThread      PermissionState[]
+  Follower        PermissionState[]
+  EditPermissions PermissionState[]
+  Pickup          PermissionState[]
+}
+
+enum PermissionState {
+  CREATE
+  DELETE
+  MODIFY
+  VIEW
+}
+
+model UserLoginLog {
+  id        String   @id() @default(uuid())
+  data      Json[]   @default(["{}"])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+}
+
+model UserAbout {
+  id          String        @id() @default(uuid())
+  about       String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt()
+  UserProfile UserProfile[]
+}
+
+model Admin {
+  id                 String              @id() @default(uuid())
+  first_name         String
+  last_name          String
+  email              String              @unique
+  password           String
+  tier               UserRole            @default(ADMIN)
+  location           Json                @default("{}")
+  AdminNotifications AdminNotification[]
+  AdminLoginLog      AdminLoginLog[]
+  consoles           Console[]
+  genres             Genre[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt()
+}
+
+model Boardman {
+  id             String                 @id() @default(uuid())
+  first_name     String
+  last_name      String
+  email          String                 @unique
+  password       String
+  location       Json                   @default("{}")
+  notifications  BoardmanNotification[]
+  queue          OrderQueue             @relation(fields: [orderQueueId], references: [id])
+  orderQueueId   String                 @unique
+  logins         BoardmanLoginLog[]
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt()
+  OrderTo        OrderTo[]
+  OrderFrom      OrderFrom[]
+  BoardmanWallet BoardmanWallet[]
+}
+
+model OrderTo {
+  id         String   @id() @default(uuid())
+  boardman   Boardman @relation(fields: [boardmanId], references: [id])
+  boardmanId String
+  Order      Order[]
+}
+
+model OrderFrom {
+  id         String   @id() @default(uuid())
+  boardman   Boardman @relation(fields: [boardmanId], references: [id])
+  boardmanId String
+  Order      Order[]
+}
+
+model Referral {
+  id            String       @id() @default(uuid())
+  UserProfile   UserProfile? @relation(fields: [userProfileId], references: [id])
+  userProfileId String?
+}
+
+model OrderQueue {
+  id       String    @id() @default(uuid())
+  orders   Order[]
+  Boardman Boardman?
+}
+
+model Pickup {
+  id            String       @id() @default(uuid())
+  UserProfile   UserProfile? @relation(fields: [userProfileId], references: [id])
+  userProfileId String?
+  order         Order[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt()
+}
+
+model Order {
+  id             String       @id() @default(uuid())
+  AgentTo        OrderTo?     @relation(fields: [orderToId], references: [id])
+  orderToId      String
+  AgentFrom      OrderFrom    @relation(fields: [orderFromId], references: [id])
+  orderFromId    String
+  swap           UserGameSwap @relation(fields: [userGameSwapId], references: [id])
+  userGameSwapId String
+  Pickup         Pickup?      @relation(fields: [pickupId], references: [id])
+  pickupId       String?
+  Sale           UserSale     @relation(fields: [userSaleId], references: [id])
+  userSaleId     String
+  OrderQueue     OrderQueue?  @relation(fields: [orderQueueId], references: [id])
+  orderQueueId   String?
+  status         OrderStatus  @default(PENDING)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt()
+}
+
+model AdminNotification {
+  id        String   @id() @default(uuid())
+  admin     Admin    @relation(fields: [adminId], references: [id])
+  message   Json     @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+  adminId   String
+}
+
+model BoardmanNotification {
+  id         String    @id() @default(uuid())
+  message    Json      @default("{}")
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt()
+  Boardman   Boardman? @relation(fields: [boardmanId], references: [id])
+  boardmanId String?
+}
+
+model AdminLoginLog {
+  id            String      @id() @default(uuid())
+  profile       UserProfile @relation(fields: [userProfileId], references: [id])
+  userProfileId String
+  admin         Admin       @relation(fields: [adminId], references: [id])
+  adminId       String
+  data          Json        @default("{}")
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt()
+}
+
+model BoardmanLoginLog {
+  id         String    @id() @default(uuid())
+  data       Json      @default("{}")
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt()
+  Boardman   Boardman? @relation(fields: [boardmanId], references: [id])
+  boardmanId String?
+}
+
+model UserHandle {
+  id          String        @id() @default(uuid())
+  handle      String        @unique() @default("@")
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt()
+  UserProfile UserProfile[]
+}
+
+model Developer {
+  id        String        @id() @default(uuid())
+  apps      Application[]
+  keys      Key[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt()
+}
+
+model Application {
+  id          String    @id() @default(uuid())
+  requests    Request[]
+  Developer   Developer @relation(fields: [developerId], references: [id])
+  developerId String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt()
+}
+
+model Request {
+  id            String       @id() @default(uuid())
+  Application   Application? @relation(fields: [applicationId], references: [id])
+  applicationId String?
+  endpoint      String
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt()
+}
+
+model Key {
+  id               String         @id() @default(uuid())
+  Developer        Developer      @relation(fields: [developerId], references: [id])
+  developerId      String
+  KeyPermissions   KeyPermissions @relation(fields: [keyPermissionsId], references: [id])
+  keyPermissionsId String
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt()
+}
+
+model KeyPermissions {
+  id              String            @id() @default(uuid())
+  Key             Key[]
+  Swap            PermissionState[]
+  Dispute         PermissionState[]
+  Game            PermissionState[]
+  Message         PermissionState[]
+  Reply           PermissionState[]
+  Comment         PermissionState[]
+  Inventory       PermissionState[]
+  Offer           PermissionState[]
+  CounterOffer    PermissionState[]
+  AcceptOffer     PermissionState[]
+  Square          PermissionState[]
+  SellGame        PermissionState[]
+  Wallet          PermissionState[]
+  Currency        PermissionState[]
+  Bookmark        PermissionState[]
+  BookmarkItem    PermissionState[]
+  BuyGame         PermissionState[]
+  Contacts        PermissionState[]
+  ReceiveMessage  PermissionState[]
+  Chat            PermissionState[]
+  Notification    PermissionState[]
+  Thread          PermissionState[]
+  Genre           PermissionState[]
+  Console         PermissionState[]
+  Mention         PermissionState[]
+  QrSale          PermissionState[]
+  QrOffer         PermissionState[]
+  ContactItem     PermissionState[]
+  SwapThread      PermissionState[]
+  Follower        PermissionState[]
+  EditPermissions PermissionState[]
+  Pickup          PermissionState[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt()
+}
+
+enum OrderStatus {
+  PENDING
+  PICKED_UP
+  IN_TRANSIT
+}

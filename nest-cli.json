@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/customer-logic",
+  "projects": {
+    "customer-logic": {
+      "type": "application",
+      "root": "apps/customer-logic",
+      "entryFile": "main",
+      "sourceRoot": "apps/customer-logic/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/customer-logic/tsconfig.app.json"
+      }
+    },
+    "api-logic": {
+      "type": "application",
+      "root": "apps/api-logic",
+      "entryFile": "main",
+      "sourceRoot": "apps/api-logic/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/api-logic/tsconfig.app.json"
+      }
+    },
+    "agent-logic": {
+      "type": "application",
+      "root": "apps/agent-logic",
+      "entryFile": "main",
+      "sourceRoot": "apps/agent-logic/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/agent-logic/tsconfig.app.json"
+      }
+    },
+    "admin-logic": {
+      "type": "application",
+      "root": "apps/admin-logic",
+      "entryFile": "main",
+      "sourceRoot": "apps/admin-logic/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/admin-logic/tsconfig.app.json"
+      }
+    },
+    "boardman-commons": {
+      "type": "library",
+      "root": "libs/boardman-commons",
+      "entryFile": "index",
+      "sourceRoot": "libs/boardman-commons/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/boardman-commons/tsconfig.lib.json"
+      }
+    }
+  }
+}

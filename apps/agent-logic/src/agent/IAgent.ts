@@ -1,0 +1,31 @@
+import BMResponse from '@app/boardman-commons/IResponse';
+
+export interface IAgent {
+  CreateAgent(data: Map<string, any>): Promise<BMResponse>;
+  GetOrderTo(data: Map<string, any>): Promise<BMResponse>;
+  GetOrderFrom(data: Map<string, any>): Promise<BMResponse>;
+  Getnotifications(data: Map<string, any>): Promise<BMResponse>;
+  Getlogins(data: Map<string, any>): Promise<BMResponse>;
+  AddOrderTo(data: Map<string, any>): Promise<BMResponse>;
+  AddOrderFrom(data: Map<string, any>): Promise<BMResponse>;
+  Addnotifications(data: Map<string, any>): Promise<BMResponse>;
+  RemoveOrderTo(data: Map<string, any>): Promise<BMResponse>;
+  RemoveOrderFrom(data: Map<string, any>): Promise<BMResponse>;
+  Removenotifications(data: Map<string, any>): Promise<BMResponse>;
+  Removelogins(data: Map<string, any>): Promise<BMResponse>;
+  FindByid(data: Map<string, any>): Promise<BMResponse>;
+  FindByfirst_name(data: Map<string, any>): Promise<BMResponse>;
+  FindBylast_name(data: Map<string, any>): Promise<BMResponse>;
+  FindByemail(data: Map<string, any>): Promise<BMResponse>;
+  FindBypassword(data: Map<string, any>): Promise<BMResponse>;
+  FindBylocation(data: Map<string, any>): Promise<BMResponse>;
+  FindByqueueId(data: Map<string, any>): Promise<BMResponse>;
+  FindBycreatedAt(data: Map<string, any>): Promise<BMResponse>;
+  FindByupdatedAt(data: Map<string, any>): Promise<BMResponse>;
+  Updatefirst_name(data: Map<string, any>): Promise<BMResponse>;
+  Updatelast_name(data: Map<string, any>): Promise<BMResponse>;
+  Updateemail(data: Map<string, any>): Promise<BMResponse>;
+  Updatepassword(data: Map<string, any>): Promise<BMResponse>;
+  Updatelocation(data: Map<string, any>): Promise<BMResponse>;
+  UpdatequeueId(data: Map<string, any>): Promise<BMResponse>;
+}

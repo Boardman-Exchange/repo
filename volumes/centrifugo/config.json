@@ -1,0 +1,14 @@
+{
+  "token_hmac_secret_key": "bbe7d157-a253-4094-9759-06a8236543f9",
+  "admin": true,
+  "admin_password": "d0683813-0916-4c49-979f-0e08a686b727",
+  "admin_secret": "4e9eafcf-0120-4ddd-b668-8dc40072c78e",
+  "api_key": "12345678",
+  "allowed_origins": [
+    "*"
+  ],
+  "client_insecure": true,
+  "admin_insecure":true,
+  "api_insecure": true,
+  "swagger": true
+}
